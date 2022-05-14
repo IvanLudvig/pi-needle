@@ -95,5 +95,8 @@ setInterval(() => {
         .attr('y1', needle.y1)
         .attr('y2', needle.y2)
         .attr('stroke', '#8e32c2')
-        .attr('stroke-width', 2);
+        .attr('stroke-width', 2)
+        .attr('opacity', 0)
+        .transition()
+        .attr('opacity', 1);
 }, 100);
