@@ -1,4 +1,32 @@
 const svgContainer = document.getElementById('container');
+const needlesInput = document.getElementById('needles-input');
+const stopBtn = document.getElementById('stop-btn');
+const restartBtn = document.getElementById('restart-btn');
+
+let frequency = parseFloat(needlesInput.value);
+
+needlesInput.addEventListener('input', (ev) => {
+    if (parseInt(ev.target.value) !== numPoints) {
+        frequency = parseInt(ev.target.value);
+        reset();
+    }
+});
+
+stopBtn.addEventListener('click', (ev) => {
+    if (interval) {
+        stop();
+        stopBtn.innerText = 'Start';
+    } else {
+        start();
+        stopBtn.innerText = 'Stop';
+    }
+
+});
+
+restartBtn.addEventListener('click', (ev) => {
+    reset();
+});
+
 const margin = { top: 12, right: 30, bottom: 12, left: 30 };
 
 let viewBox = { x: 0, y: 0, w: 1000, h: 600 };
@@ -73,30 +101,53 @@ const generateNeedle = () => {
     return needle;
 }
 
-const needlesSvg = svg.append('g');
+const needlesSvg = svg.append('g').attr('id', 'needles-svg');
 
 const calculatePi = () => {
     const p = intersections / needles;
     return 2 * l / (p * distance);
 }
 
-setInterval(() => {
-    const needle = generateNeedle();
-    needles += 1;
-    if (detectIntersection(needle)) {
-        intersections += 1;
-    }
-    console.log(calculatePi());
-    console.log(needles);
+let interval;
 
-    needlesSvg.append('line')
-        .attr('x1', needle.x1)
-        .attr('x2', needle.x2)
-        .attr('y1', needle.y1)
-        .attr('y2', needle.y2)
-        .attr('stroke', '#8e32c2')
-        .attr('stroke-width', 2)
-        .attr('opacity', 0)
-        .transition()
-        .attr('opacity', 1);
-}, 100);
+const stop = () => {
+    if (interval) {
+        clearInterval(interval);
+        interval = null;
+    }
+}
+
+const start = () => {
+    interval = setInterval(() => {
+        const needle = generateNeedle();
+        needles += 1;
+        if (detectIntersection(needle)) {
+            intersections += 1;
+        }
+
+        needlesSvg.append('line')
+            .attr('x1', needle.x1)
+            .attr('x2', needle.x2)
+            .attr('y1', needle.y1)
+            .attr('y2', needle.y2)
+            .attr('stroke', '#8e32c2')
+            .attr('stroke-width', 2)
+            .attr('opacity', 0)
+            .transition()
+            .attr('opacity', 1);
+    }, 1000 / frequency);
+}
+
+const reset = () => {
+    stop();
+
+    intersections = 0;
+    needles = 0;
+
+    d3.select('#needles-svg').selectAll('line').remove();
+    stopBtn.innerText = 'Stop';
+
+    start();
+}
+
+reset();
