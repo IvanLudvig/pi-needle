@@ -7,6 +7,9 @@
 </head>
 
 <body>
+    <div id='big-pi' class='pi-label'>
+    </div>
+    
     <div id='container'>
     </div>
 
@@ -14,6 +17,19 @@
         <div class='control'>
             Needles/sec:&nbsp; <input type='number' id='needles-input' value='10' />
         </div>
+
+        <div class='control'>
+            Distance:&nbsp; <input type='number' id='distance-input' value='100' />
+        </div>
+
+        <div class='control'>
+            Length:&nbsp; <input type='number' id='length-input' value='20' />
+        </div>
+
+        <div class='control'>
+            Pi:&nbsp; <span id='small-pi'></span>
+        </div>
+
         <div class='control'>
             <button id='stop-btn'>
                 Stop
@@ -24,7 +40,11 @@
         </div>
     </div>
 
+
+
     <script src='index.js'></script>
+
+
 </body>
 
 </html>

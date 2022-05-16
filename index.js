@@ -1,14 +1,35 @@
 const svgContainer = document.getElementById('container');
 const needlesInput = document.getElementById('needles-input');
+const distanceInput = document.getElementById('distance-input');
+const lengthInput = document.getElementById('length-input');
 const stopBtn = document.getElementById('stop-btn');
 const restartBtn = document.getElementById('restart-btn');
+const bigPi = document.getElementById('big-pi');
+const smallPi = document.getElementById('small-pi');
 
 let frequency = parseFloat(needlesInput.value);
+let distance = parseFloat(distanceInput.value);
+let l = parseFloat(lengthInput.value);
 
 needlesInput.addEventListener('input', (ev) => {
-    if (parseInt(ev.target.value) !== numPoints) {
+    if (parseInt(ev.target.value) !== frequency) {
         frequency = parseInt(ev.target.value);
-        reset();
+        stop();
+        start();
+    }
+});
+
+distanceInput.addEventListener('input', (ev) => {
+    if (parseInt(ev.target.value) !== distance) {
+        distance = parseInt(ev.target.value);
+        restart();
+    }
+});
+
+lengthInput.addEventListener('input', (ev) => {
+    if (parseInt(ev.target.value) !== lengthInput) {
+        l = parseInt(ev.target.value);
+        restart();
     }
 });
 
@@ -24,7 +45,7 @@ stopBtn.addEventListener('click', (ev) => {
 });
 
 restartBtn.addEventListener('click', (ev) => {
-    reset();
+    restart();
 });
 
 const margin = { top: 12, right: 30, bottom: 12, left: 30 };
@@ -52,29 +73,8 @@ window.addEventListener('resize', function (event) {
         .attr('height', window.innerHeight - margin.top - margin.bottom)
 });
 
-const distance = width / 12;
-const l = width / 40;
-const lines = Array.from(Array(Math.ceil(width / distance))).map((_, i) => {
-    const line = {
-        x1: i * distance,
-        x2: i * distance,
-        y1: 0,
-        y2: height
-    }
-    return line;
-});
 
-
-svg.append('g')
-    .selectAll('lines')
-    .data(lines).enter()
-    .append('line')
-    .attr('x1', d => d.x1)
-    .attr('x2', d => d.x2)
-    .attr('y1', d => d.y1)
-    .attr('y2', d => d.y2)
-    .attr('stroke', '#b0b8bf')
-    .attr('stroke-width', 2);
+let lines;
 
 const detectIntersection = (needle) => {
     const minX = Math.min(needle.x1, needle.x2);
@@ -104,6 +104,10 @@ const generateNeedle = () => {
 const needlesSvg = svg.append('g').attr('id', 'needles-svg');
 
 const calculatePi = () => {
+    if (needles === 0 || intersections === 0) {
+        return 0;
+    }
+
     const p = intersections / needles;
     return 2 * l / (p * distance);
 }
@@ -135,19 +139,46 @@ const start = () => {
             .attr('opacity', 0)
             .transition()
             .attr('opacity', 1);
+
+        const pi = calculatePi().toFixed(6);
+        bigPi.innerText = `π=${pi}`;
+        smallPi.innerText = pi;
     }, 1000 / frequency);
 }
 
-const reset = () => {
+const restart = () => {
     stop();
 
     intersections = 0;
     needles = 0;
 
     d3.select('#needles-svg').selectAll('line').remove();
+    d3.selectAll('#lines-svg').selectAll('line').remove();
     stopBtn.innerText = 'Stop';
+
+    lines = Array.from(Array(Math.ceil(width / distance))).map((_, i) => {
+        const line = {
+            x1: i * distance,
+            x2: i * distance,
+            y1: 0,
+            y2: height
+        }
+        return line;
+    });
+
+    svg.append('g')
+        .attr('id', 'lines-svg')
+        .selectAll('lines')
+        .data(lines).enter()
+        .append('line')
+        .attr('x1', d => d.x1)
+        .attr('x2', d => d.x2)
+        .attr('y1', d => d.y1)
+        .attr('y2', d => d.y2)
+        .attr('stroke', '#b0b8bf')
+        .attr('stroke-width', 2);
 
     start();
 }
 
-reset();
+restart();
